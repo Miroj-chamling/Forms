@@ -10,9 +10,11 @@ class TextFormGeneral extends StatefulWidget {
 }
 
 class _TextFormGeneralState extends State<TextFormGeneral> {
+  final formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _numberController = TextEditingController();
   String password = '';
+  String username = '';
   bool _isPasswordVisible = true;
 
   @override
@@ -38,65 +40,80 @@ class _TextFormGeneralState extends State<TextFormGeneral> {
         FocusScope.of(context).unfocus();
       },
       child: Center(
-        child: ListView(
-          padding: EdgeInsets.all(20),
-          children: [
-            buildEmail(),
-            SizedBox(height: 24),
-            buildPassword(),
-            SizedBox(height: 24),
-            buildNumber(),
-            SizedBox(height: 24),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TextFieldFocus(),
+        child: Form(
+          key: formKey,
+          child: ListView(
+            padding: EdgeInsets.all(20),
+            children: [
+              buildUsername(),
+              SizedBox(height: 30),
+              buildEmail(),
+              SizedBox(height: 24),
+              buildPassword(),
+              SizedBox(height: 24),
+              buildNumber(),
+              SizedBox(height: 24),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TextFieldFocus(),
+                    ),
+                  );
+                },
+                child: Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(20),
+                    ),
                   ),
-                );
-              },
-              child: Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black),
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Click Go To Focus Page'),
+                      Icon(Icons.arrow_forward_ios),
+                    ],
                   ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Click Go To Focus Page'),
-                    Icon(Icons.arrow_forward_ios),
-                  ],
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  final isValid = formKey.currentState!.validate();
+                  if (isValid) {
+                    formKey.currentState!.save();
+                    final message = 'Changes saved';
+                    final snackBar = SnackBar(
+                      content: Text(
+                        message,
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      backgroundColor: Colors.green,
+                    );
+                    Scaffold.of(context).showSnackBar(snackBar);
+                  }
+                },
+                child: Text(
+                  'Submit',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.normal),
                 ),
+                style: style,
               ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                // print('Email:  ${_emailController.text}');
-                // print('Password: ${password}');
-                // print('Number:  ${_numberController.text}');
-              },
-              child: Text(
-                'Submit',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.normal),
-              ),
-              style: style,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  TextField buildEmail() {
-    return TextField(
+  TextFormField buildEmail() {
+    return TextFormField(
       autofocus: true,
       controller: _emailController,
       decoration: InputDecoration(
@@ -118,9 +135,9 @@ class _TextFormGeneralState extends State<TextFormGeneral> {
     );
   }
 
-  TextField buildPassword() {
-    return TextField(
-      onChanged: (value) => setState(() => this.password = value),
+  TextFormField buildPassword() {
+    return TextFormField(
+      onSaved: (value) => setState(() => password = value!),
       //onSubmitted: (value)=> setState(() => this.password = value),
       decoration: InputDecoration(
         hintText: 'Password',
@@ -140,6 +157,40 @@ class _TextFormGeneralState extends State<TextFormGeneral> {
       ),
       obscureText: _isPasswordVisible,
       keyboardType: TextInputType.emailAddress,
+      textInputAction: TextInputAction.done,
+    );
+  }
+
+  TextFormField buildUsername() {
+    return TextFormField(
+      maxLength: 30,
+      validator: (value) {
+        if (value!.length < 4) {
+          return 'Enter at least 4 character';
+        } else {
+          return null;
+        }
+      },
+      onSaved: (value) => setState(() => username = value!),
+      //onSubmitted: (value)=> setState(() => this.password = value),
+      decoration: InputDecoration(
+        hintText: 'Username',
+        labelText: 'Username',
+        //errorText: 'Incorrect Password',
+        // suffixIcon: IconButton(
+        //   onPressed: () {
+        //     setState(() {
+        //       _isPasswordVisible = !_isPasswordVisible;
+        //     });
+        //   },
+        //   icon: _isPasswordVisible
+        //       ? Icon(Icons.visibility_off)
+        //       : Icon(Icons.visibility),
+        // ),
+        border: OutlineInputBorder(),
+      ),
+      //obscureText: _isPasswordVisible,
+      keyboardType: TextInputType.name,
       textInputAction: TextInputAction.done,
     );
   }
