@@ -46,7 +46,7 @@ class _TextFormGeneralState extends State<TextFormGeneral> {
             padding: EdgeInsets.all(20),
             children: [
               buildUsername(),
-              SizedBox(height: 30),
+              SizedBox(height: 24),
               buildEmail(),
               SizedBox(height: 24),
               buildPassword(),
@@ -115,6 +115,18 @@ class _TextFormGeneralState extends State<TextFormGeneral> {
   TextFormField buildEmail() {
     return TextFormField(
       autofocus: true,
+      validator: (value) {
+        final pattern = r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)';
+        final regExp = RegExp(pattern);
+
+        if (value!.isEmpty) {
+          return 'Enter an email';
+        } else if (!regExp.hasMatch(value)) {
+          return 'Enter a valid email';
+        } else {
+          return null;
+        }
+      },
       controller: _emailController,
       decoration: InputDecoration(
         hintText: 'Johndoe@example.com',
@@ -138,6 +150,13 @@ class _TextFormGeneralState extends State<TextFormGeneral> {
   TextFormField buildPassword() {
     return TextFormField(
       onSaved: (value) => setState(() => password = value!),
+      validator: (value) {
+        if (value!.length < 7) {
+          return 'Password must be at least 7 characters long';
+        } else {
+          return null;
+        }
+      },
       //onSubmitted: (value)=> setState(() => this.password = value),
       decoration: InputDecoration(
         hintText: 'Password',
@@ -167,6 +186,8 @@ class _TextFormGeneralState extends State<TextFormGeneral> {
       validator: (value) {
         if (value!.length < 4) {
           return 'Enter at least 4 character';
+        } else if (value.isEmpty) {
+          return 'Enter Username';
         } else {
           return null;
         }
